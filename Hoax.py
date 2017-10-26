@@ -15,7 +15,7 @@ nNormalAwal = 0
 nNormalAkhir = 45
 #Cukup Normal
 nCukupNormalAwal = 60
-nCukupNormalAkhir = 70
+nCukupNormalAkhir = 72
 #Tidak Normal
 nTidakNormalAwal = 80
 nTidakNormalAkhir = 100
@@ -74,11 +74,11 @@ def fuzzyfication(datastore,nEmosi, nProvokasi):
         datastore.append(emosi1);
     elif (nEmosi > nCukupStabilAkhir and nEmosi < nTidakStabilAwal):
         valueEmosil = -1*(nEmosi - nTidakStabilAwal)/(nTidakStabilAwal-nCukupStabilAkhir)
-        emosi0 = NilaiFuzzyfication('Emosi', 'Stabil', valueEmosil)
+        emosi0 = NilaiFuzzyfication('Emosi', 'Cukup Stabil', valueEmosil)
         datastore.append(emosi0);
 
         valueEmosi2 = (nEmosi - nCukupStabilAkhir) / (nTidakStabilAwal - nCukupStabilAkhir)
-        emosi1 = NilaiFuzzyfication('Emosi', 'Cukup Stabil', valueEmosi2)
+        emosi1 = NilaiFuzzyfication('Emosi', 'Tidak Stabil', valueEmosi2)
         datastore.append(emosi1);
 
     if (nProvokasi >= nNormalAwal and nProvokasi <= nNormalAkhir):
@@ -116,7 +116,7 @@ def inference(datastore, rules):
                     classification = fuzzyRule(datastore[i].classification,datastore[j].classification)
                     value = min(datastore[i].value,datastore[j].value)
 
-                    print datastore[i].classification, datastore[j].classification, classification, value
+                    # print datastore[i].classification, datastore[j].classification, classification, value
 
                     rule0 = Rule(classification, value)
                     temp_rules.append(rule0)
@@ -142,21 +142,32 @@ def defuzzyfication(rule):
         return result
 
 if __name__=='__main__':
-    datastore = []
-    rules = []
-    result = []
-    nEmosi = 79
-    nProvokasi = 81
+    arr_emosi = [97,36,63,82,71,79,55,57,40,57,77,68,60,82,40,80,60,50,100,11]
+    arr_provokasi = [74,85,43,90,25,81,62,45,65,45,70,75,70,90,85,68,72,95,18,99]
+    arr_hasil = ["Ya","Ya","Tidak","Ya","Tidak","Ya","Tidak","Tidak","Tidak","Tidak","Ya","Ya","Tidak","Ya","Tidak","Ya","Tidak","Ya","Tidak","Ya"]
 
-    fuzzyfication(datastore,nEmosi,nProvokasi)
-    for i in range(len(datastore)):
-        print datastore[i].inputCode, datastore[i].classification, datastore[i].value
-    print
+    for i in range(len(arr_emosi)):
+        testing = ""
+        datastore = []
+        rules = []
+        result = []
+        nEmosi = arr_emosi[i]
+        nProvokasi = arr_provokasi[i]
 
-    inference(datastore, rules)
-    print
+        fuzzyfication(datastore, nEmosi, nProvokasi)
+        # for i in range(len(datastore)):
+        #     print datastore[i].inputCode, datastore[i].classification, datastore[i].value
+        # print
 
-    if (defuzzyfication(rules)<=50):
-        print "Ya"
-    else:
-        print "Tidak"
+        inference(datastore, rules)
+        # print
+
+        if (defuzzyfication(rules) <= 70):
+            testing = "Ya"
+        else:
+            testing = "Tidak"
+
+        if testing == arr_hasil[i]:
+            print "Matched"
+        else:
+            print "Not Matched"
